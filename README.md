@@ -1,22 +1,37 @@
 # Setup for K8s Workshop
 
 # Settings
-Create a file .env and set
+Create a file 'settings.yaml' and set
 
 ```shell
-NUM_VMS=3
-# VM_NAMES_FILE="${PROJECT_DIR}/.vm-names.env"
-GROUP=vm-test
-SERVERTYPE=cx31
-IMAGE=ubuntu-22.04
-DATACENTER=nbg1-dc3
-VM_ID_FILE=$HOME/.ssh/aws-ssh-sn-azubi-lab.pem
-LAB_USER=lab
-LAB_PASSWD="My-1-Secret!"
-CLOUDFLARE_API_TOKEN=myCloudflareToken
+settings:
+  num_vms: 3
+  group: "grp-a"
+  servertype: "cx21"
+  image: "ubuntu-22.04"
+  datacenter: "nbg1-dc3"
+  vm_id_file: "${PROJECT_DIR}/.ssh/ssh-id"
+  lab_user: "lab"
+  lab_passwd: "My-1-Secret!"
+  cloudflare_api_token: "myCloudflareToken"
+# No server sharing
+vm: []
+# vm:
+#   - servers:
+#     - name: vm-test-e-vm-a
+#       servertype: cx31        # use different server type for this instance
+#       image: cpx21            # use different image for this instance
+#       users:
+#         - name: user-a-1
+#         - name: user-a-2
+#     - name: vm-test-e-vm-b
+#       users:
+#         - name: user-b-1
+#         - name: user-b-2
+#         - name: user-b-3
 ```
 # Create Resources
-The script `setup.sh` creates a security group, the EC2 instances and the DNS records in Cloudflare.
+The script `setup.sh` creates the server and the DNS records in Cloudflare.
 
 ```shell
 ./setup.sh

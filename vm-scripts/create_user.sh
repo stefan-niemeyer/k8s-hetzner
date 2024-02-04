@@ -1,26 +1,32 @@
 #!/usr/bin/env bash
 
-if [[ -z "$1" || -z "$2" ]]; then
-  echo "Usage $(basename $0) user passwd"
+if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
+  echo "Usage $(basename $0) host-alias user passwd"
   exit 1
 fi
 
 set -e     # exit script if a command fails
 
-LAB_USER=$1
-LAB_PASSWD="$2"
+HOST_ALIAS="$1"
+VM_USER="$2"
+VM_PASSWD="$3"
 
 # Create user
-useradd --create-home --shell /bin/bash "${LAB_USER}"
-echo "${LAB_USER}:${LAB_PASSWD}" | chpasswd
+useradd --create-home --shell /bin/bash "${VM_USER}"
+echo "${VM_USER}:${VM_PASSWD}" | chpasswd
 
-# Copy K3s access file
-mkdir -p "/home/${LAB_USER}/.kube"
-cp /etc/rancher/k3s/k3s.yaml "/home/${LAB_USER}/.kube/config"
-chown -R "${LAB_USER}:${LAB_USER}" "/home/${LAB_USER}/.kube"
+# Prepare k3s access for user
+kubectl create namespace "${VM_USER}"
+kubectl config set-context --current --namespace="${VM_USER}"
+mkdir -p "/home/${VM_USER}/.kube"
+cp /etc/rancher/k3s/k3s.yaml "/home/${VM_USER}/.kube/config"
+chown -R "${VM_USER}:${VM_USER}" "/home/${VM_USER}/.kube"
 
-# Config .profile
-echo 'export KUBECONFIG=$HOME/.kube/config' >> "/home/${LAB_USER}/.profile"
-echo 'export EXTERNAL_DNS=$(hostname).laserschwert.io' >> "/home/${LAB_USER}/.profile"
-echo 'alias k=kubectl' >> "/home/${LAB_USER}/.profile"
-echo "alias ktools='kubectl run tools --rm -it --image wbitt/network-multitool -- /bin/bash'" >> "/home/${LAB_USER}/.profile"
+# Configure .profile
+(
+  echo 'export KUBECONFIG=$HOME/.kube/config'
+  echo "export EXTERNAL_DNS=${HOST_ALIAS}.laserschwert.io"
+  echo 'alias k=kubectl'
+  echo "alias ktools='kubectl run tools --rm -it --image wbitt/network-multitool -- /bin/bash'"
+  echo "alias setpod='export POD_NAME=\$(kubectl get pods -l app=k8s-demo-vx -o jsonpath=\"{.items[*].metadata.name}\")'"
+) >> "/home/${VM_USER}/.profile"

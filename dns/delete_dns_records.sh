@@ -4,24 +4,26 @@ SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=${SCRIPT%/*}
 PROJECT_DIR=$(readlink -f "${SCRIPT_DIR}/..")
 
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR" || exit
+SETTINGS_FILE="${PROJECT_DIR}/settings.yaml"
 
 set -a
-source "$PROJECT_DIR/.env"
+# shellcheck disable=SC1090
+source <(yq -o=shell "${SETTINGS_FILE}" | sed "/\\\$/s/'//g")
 set +a
 
-printf "\nDelete DNS records for group '${GROUP}'\n"
+printf "\nDelete DNS records for group '${settings_group}'\n"
 ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=laserschwert.io" \
-               -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+               -H "Authorization: Bearer ${settings_cloudflare_api_token}" \
                -H "Content-Type: application/json" \
           | yq -oy '.result[0].id')
 
-DNS=$(curl -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?comment=group+${GROUP}" \
-           -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+DNS=$(curl -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?comment=group+${settings_group}" \
+           -H "Authorization: Bearer ${settings_cloudflare_api_token}" \
            -H "Content-Type: application/json" \
         | yq -oy '.result[].id')
 
-for dns_id in $DNS; do
-  curl -X DELETE -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${dns_id}" \
-       -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" > /dev/null
+for DNS_ID in $DNS; do
+  curl -X DELETE -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${DNS_ID}" \
+       -H "Authorization: Bearer ${settings_cloudflare_api_token}" > /dev/null
 done
