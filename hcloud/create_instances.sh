@@ -44,19 +44,22 @@ while read -r SERVER_NAME; do
 done <<< "$SERVER_NAMES"
 
 for VM_HOSTNAME in "${VM_NAMES_NUM[@]}" "${VM_NAMES_PLAIN[@]}"; do
+  if [[ -z "${VM_HOSTNAME}" ]]; then
+    continue
+  fi
   servertype=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").type' "${SETTINGS_FILE}")
   if [[ -z "$servertype" || "$servertype" == "null" ]]; then
     servertype=${settings_servertype:-cx31}
   fi
   image=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").image' "${SETTINGS_FILE}")
   if [[ -z "$image" || "$image" == "null" ]]; then
-    image=${settings_image:-ubuntu-22.04}
+    image=${settings_image:-ubuntu-24.04}
   fi
 
   printf "Create instance %-20s servertype %-8s image %-20s\n" "'${VM_HOSTNAME}'" "'${servertype}'" "'${image}'"
   hcloud server create \
-      --type "${servertype:-cx31}" \
-      --image "${settings_image:-ubuntu-22.04}" \
+      --type "${servertype:-cpx31}" \
+      --image "${settings_image:-ubuntu-24.04}" \
       --datacenter "${settings_datacenter:-nbg1-dc3}" \
       --label "group=${settings_group}" \
       --name "${VM_HOSTNAME}" \

@@ -7,8 +7,8 @@ Create a file 'settings.yaml' and set
 settings:
   num_vms: 3
   group: "grp-a"
-  servertype: "cx21"
-  image: "ubuntu-22.04"
+  servertype: "cpx21"
+  image: "ubuntu-24.04"
   datacenter: "nbg1-dc3"
   vm_id_file: "${PROJECT_DIR}/.ssh/ssh-id"
   lab_user: "lab"
@@ -19,8 +19,8 @@ vm: []
 # vm:
 #   - servers:
 #     - name: vm-test-e-vm-a
-#       servertype: cx31        # use different server type for this instance
-#       image: cpx21            # use different image for this instance
+#       servertype: cxp31       # use different server type for this instance
+#       image: ubuntu-22.04     # use different image for this instance
 #       users:
 #         - name: user-a-1
 #         - name: user-a-2
