@@ -9,7 +9,7 @@ settings:
   group: "grp-a"
   servertype: "cpx21"
   image: "ubuntu-24.04"
-  datacenter: "nbg1-dc3"
+  location: "fsn1"   # "nbg1"
   vm_id_file: "${PROJECT_DIR}/.ssh/ssh-id"
   lab_user: "lab"
   lab_passwd: "My-1-Secret!"

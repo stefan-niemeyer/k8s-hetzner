@@ -12,6 +12,7 @@ set -a
 source <(yq -o=shell "${SETTINGS_FILE}" | sed "/\\\$/s/'//g")
 set +a
 
+# shellcheck disable=SC2046 disable=SC2154
 mkdir -p $(dirname "$settings_vm_id_file")
 if [[ ! -f "$settings_vm_id_file" ]]; then
   echo "creating ssh key"
@@ -60,7 +61,7 @@ for VM_HOSTNAME in "${VM_NAMES_NUM[@]}" "${VM_NAMES_PLAIN[@]}"; do
   hcloud server create \
       --type "${servertype:-cpx31}" \
       --image "${settings_image:-ubuntu-24.04}" \
-      --datacenter "${settings_datacenter:-nbg1-dc3}" \
+      --location "${settings_location:-fsn1}" \
       --label "group=${settings_group}" \
       --name "${VM_HOSTNAME}" \
       --ssh-key "${SSH_KEY_NAME}" &
