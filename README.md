@@ -7,9 +7,9 @@ Create a file 'settings.yaml' and set
 settings:
   num_vms: 3
   group: "grp-a"
-  servertype: "cpx21"
-  image: "ubuntu-24.04"
-  location: "fsn1"   # "nbg1"
+  servertype: "cpx32"         # hcloud server-type list / cpx32 = 4 VCPUs, 8 GB RAM, 160 GB SSD
+  image: "ubuntu-24.04"       # hcloud image list
+  location: "fsn1"            # hcloud location list
   vm_id_file: "${PROJECT_DIR}/.ssh/ssh-id"
   lab_user: "lab"
   lab_passwd: "My-1-Secret!"

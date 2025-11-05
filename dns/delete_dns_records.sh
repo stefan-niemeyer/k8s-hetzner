@@ -13,7 +13,7 @@ source <(yq -o=shell "${SETTINGS_FILE}" | sed "/\\\$/s/'//g")
 set +a
 
 printf "\nDelete DNS records for group '${settings_group}'\n"
-ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=laserschwert.io" \
+ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=nerdapp.work" \
                -H "Authorization: Bearer ${settings_cloudflare_api_token}" \
                -H "Content-Type: application/json" \
           | yq -oy '.result[0].id')

@@ -59,7 +59,7 @@ for VM_HOSTNAME in "${VM_NAMES_NUM[@]}" "${VM_NAMES_PLAIN[@]}"; do
 
   printf "Create instance %-20s servertype %-8s image %-20s\n" "'${VM_HOSTNAME}'" "'${servertype}'" "'${image}'"
   hcloud server create \
-      --type "${servertype:-cpx31}" \
+      --type "${servertype:-cpx32}" \
       --image "${settings_image:-ubuntu-24.04}" \
       --location "${settings_location:-fsn1}" \
       --label "group=${settings_group}" \

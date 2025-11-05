@@ -25,7 +25,7 @@ chown -R "${VM_USER}:${VM_USER}" "/home/${VM_USER}/.kube"
 # Configure .profile
 (
   echo 'export KUBECONFIG=$HOME/.kube/config'
-  echo "export EXTERNAL_DNS=${HOST_ALIAS}.laserschwert.io"
+  echo "export EXTERNAL_DNS=${HOST_ALIAS}.nerdapp.work"
   echo 'alias k=kubectl'
   echo "alias ktools='kubectl run tools --rm -it --image wbitt/network-multitool -- /bin/bash'"
   echo "alias setpod='export POD_NAME=\$(kubectl get pods -l app=k8s-demo-vx -o jsonpath=\"{.items[*].metadata.name}\")'"
