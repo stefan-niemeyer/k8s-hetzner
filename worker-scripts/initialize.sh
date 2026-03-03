@@ -18,7 +18,6 @@ cat > traefik-values.yaml <<EOF
 ## File values.yaml ##
 providers:
   # Disable the Ingress provider (optional)
-  # We do not want to use Ingress objects anymore!
   kubernetesIngress:
     enabled: true
   # Enable the GatewayAPI provider
