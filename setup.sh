@@ -13,5 +13,7 @@ source <(yq -o=shell "${SETTINGS_FILE}" | sed "/\\\$/s/'//g")
 set +a
 
 "${PROJECT_DIR}/hcloud/create_instances.sh" "$1"
-"${PROJECT_DIR}/hcloud/setup_instances.sh"
 "${PROJECT_DIR}/dns/create_dns_records.sh"
+
+"${PROJECT_DIR}/hcloud/setup_guacamole_instance.sh"
+"${PROJECT_DIR}/hcloud/setup_worker_instances.sh"

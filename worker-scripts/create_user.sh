@@ -21,6 +21,7 @@ kubectl config set-context --current --namespace="${VM_USER}"
 mkdir -p "/home/${VM_USER}/.kube"
 cp /etc/rancher/k3s/k3s.yaml "/home/${VM_USER}/.kube/config"
 chown -R "${VM_USER}:${VM_USER}" "/home/${VM_USER}/.kube"
+sed '/PS1/ s/\\h/nerdapp.work/g' "/home/${VM_USER}/.bashrc"
 
 # Configure .profile
 (

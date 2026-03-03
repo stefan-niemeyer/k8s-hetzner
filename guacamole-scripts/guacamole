@@ -1,0 +1,31 @@
+server {
+    listen 80;
+    server_name ssh.nerdapp.work;
+
+    # redirect all queries for the root directory directly to /guacamole/
+    location = / {
+        return 301 /guacamole/;
+    }
+
+    location /guacamole/ {
+        # pass to Docker container
+        proxy_pass http://127.0.0.1:8080/guacamole/;
+
+        # EXTREMLY IMPORTANT: Deactivate buffering for real time streaming
+        proxy_buffering off;
+
+        # activate WebSockets for connections
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $http_connection;
+
+        # pass original IP of the Guacamole user
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+
+        # prevent cookie problems during login
+        proxy_cookie_path /guacamole/ /;
+
+        access_log off;
+    }
+}

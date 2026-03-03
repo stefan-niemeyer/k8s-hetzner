@@ -1,0 +1,52 @@
+# docker-compose.yml
+services:
+  guacd:
+    image: guacamole/guacd
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 4822 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: $PG_PASSWORD
+      POSTGRES_DB: guacamole_db
+    volumes:
+      # This folder will be executed during first start of PostgreSQL
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      # check, if PostgreSQL accepts SQL command
+      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  guacamole:
+    image: guacamole/guacamole
+    restart: always
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USERNAME: guacamole_user
+      POSTGRESQL_PASSWORD: $PG_PASSWORD
+    ports:
+      - "8080:8080"
+    depends_on:
+      guacd:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/guacamole/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

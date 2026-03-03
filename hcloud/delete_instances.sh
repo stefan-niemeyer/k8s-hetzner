@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "🔶🔶🔶🔶🔶🔶🔶🔶🔶🔶 ${0##*/} 🔶🔶🔶🔶🔶🔶🔶🔶🔶🔶"
+
 SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=${SCRIPT%/*}
 PROJECT_DIR=$(readlink -f "${SCRIPT_DIR}/..")

@@ -9,15 +9,23 @@ settings:
   group: "grp-a"
   servertype: "cpx32"         # hcloud server-type list / cpx32 = 4 VCPUs, 8 GB RAM, 160 GB SSD
   image: "ubuntu-24.04"       # hcloud image list
-  location: "fsn1"            # hcloud location list
+  location: "nbg1"            # hcloud location list
+  usage: "k8s-vm"
+  worker_selector: "usage=k8s-vm"
+  guacamole_selector: "usage=guacamole"
   vm_id_file: "${PROJECT_DIR}/.ssh/ssh-id"
   lab_user: "lab"
   lab_passwd: "My-1-Secret!"
+  guac_admin: "myguacadmin"
+  guac_passwd: "My-1-Guac-Admin-Secret!"
   cloudflare_api_token: "myCloudflareToken"
 # No server sharing
 vm: []
 # vm:
 #   - servers:
+ #    - name: guac
+#       servertype: cx23
+#       usage: guacamole
 #     - name: vm-test-e-vm-a
 #       servertype: cxp31       # use different server type for this instance
 #       image: ubuntu-22.04     # use different image for this instance

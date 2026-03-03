@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "🔶🔶🔶🔶🔶🔶🔶🔶🔶🔶 ${0##*/} 🔶🔶🔶🔶🔶🔶🔶🔶🔶🔶"
+
 SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=${SCRIPT%/*}
 PROJECT_DIR=$(readlink -f "${SCRIPT_DIR}/..")
@@ -13,7 +15,7 @@ source <(yq -o=shell "${SETTINGS_FILE}" | sed "/\\\$/s/'//g")
 set +a
 
 # shellcheck disable=SC2046 disable=SC2154
-mkdir -p $(dirname "$settings_vm_id_file")
+mkdir -p "${settings_vm_id_file%/*}"
 if [[ ! -f "$settings_vm_id_file" ]]; then
   echo "creating ssh key"
   ssh-keygen -t ed25519 -N "" -f "$settings_vm_id_file"
@@ -32,37 +34,45 @@ else
   echo "ssh public key already uploaded"
 fi
 
+# A specific number of desired VMs is given in the settings.yaml
 settings_num_vms=${1:-$settings_num_vms}
 declare -a VM_NAMES_NUM
 if [[ -n "$settings_num_vms" && "$settings_num_vms" != "0" ]]; then
   VM_NAMES_NUM=($(seq -f "${settings_group}-%g" "$settings_num_vms"))
 fi
 
+# A list of server with names is given in the settings.yaml
 SERVER_NAMES=$(yq eval '.vm[].servers[].name' "${SETTINGS_FILE}")
 declare -a VM_NAMES_PLAIN
 while read -r SERVER_NAME; do
     VM_NAMES_PLAIN+=( "${SERVER_NAME}" )
 done <<< "$SERVER_NAMES"
 
+# Create the VMs defined by number and / or name
 for VM_HOSTNAME in "${VM_NAMES_NUM[@]}" "${VM_NAMES_PLAIN[@]}"; do
   if [[ -z "${VM_HOSTNAME}" ]]; then
     continue
   fi
-  servertype=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").type' "${SETTINGS_FILE}")
+  servertype=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").servertype' "${SETTINGS_FILE}")
   if [[ -z "$servertype" || "$servertype" == "null" ]]; then
-    servertype=${settings_servertype:-cx31}
+    servertype=${settings_servertype:-cpx32}
   fi
   image=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").image' "${SETTINGS_FILE}")
   if [[ -z "$image" || "$image" == "null" ]]; then
     image=${settings_image:-ubuntu-24.04}
   fi
-
-  printf "Create instance %-20s servertype %-8s image %-20s\n" "'${VM_HOSTNAME}'" "'${servertype}'" "'${image}'"
+  usage=$(yq eval '.vm[].servers[] | select(.name == "'"${VM_HOSTNAME}"'").usage' "${SETTINGS_FILE}")
+  if [[ -z "$usage" || "$usage" == "null" ]]; then
+    usage=${settings_usage:-k8s-vm}
+  fi
+  settings_location=${settings_location:-nbg1}
+  printf "Create instance %-20s location %-6s servertype %-8s image %-20s usage %-10s\n" "'${VM_HOSTNAME}'" "'${settings_location}'" "'${servertype}'" "'${image}'" "'${usage}'"
   hcloud server create \
-      --type "${servertype:-cpx32}" \
-      --image "${settings_image:-ubuntu-24.04}" \
-      --location "${settings_location:-fsn1}" \
+      --type "${servertype}" \
+      --image "${settings_image}" \
+      --location "${settings_location}" \
       --label "group=${settings_group}" \
+      --label "usage=${usage}" \
       --name "${VM_HOSTNAME}" \
       --ssh-key "${SSH_KEY_NAME}" &
 done
