@@ -4,7 +4,7 @@ SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=${SCRIPT%/*}
 PROJECT_DIR=$(readlink -f "${SCRIPT_DIR}")
 
-cd "$SCRIPT_DIR" || exit
+cd "${SCRIPT_DIR}" || exit
 SETTINGS_FILE="${PROJECT_DIR}/settings.yaml"
 
 set -a

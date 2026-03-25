@@ -2,3 +2,6 @@
 *.env
 .ssh*
 /settings.yaml
+nerdapp-work-tls.yaml
+privkey.pem
+fullchain.pem

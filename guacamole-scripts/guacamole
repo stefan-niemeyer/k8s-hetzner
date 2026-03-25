@@ -1,6 +1,23 @@
+# 1st block: redirect all unencrypted HTTP requests to HTTPS
 server {
     listen 80;
     server_name ssh.nerdapp.work;
+    return 301 https://$host$request_uri;
+}
+
+# 2nd block: actual server over HTTPS (port 443)
+server {
+    listen 443 ssl;
+    server_name ssh.nerdapp.work;
+
+    # SSL wildcard certificate from Let's Encrypt
+    ssl_certificate /etc/letsencrypt/live/nerdapp.work/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/nerdapp.work/privkey.pem;
+
+    # recommended SSL settings for modern security
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     # redirect all queries for the root directory directly to /guacamole/
     location = / {
@@ -22,6 +39,8 @@ server {
         # pass original IP of the Guacamole user
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host;
+
+        proxy_set_header X-Forwarded-Proto $scheme;
 
         # prevent cookie problems during login
         proxy_cookie_path /guacamole/ /;

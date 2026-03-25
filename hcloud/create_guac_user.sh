@@ -16,7 +16,7 @@ VM_SSH_USER="${GUAC_USER}"
 VM_SSH_PASS="${GUAC_PASS}"
 
 echo "1. get authentication token..."
-TOKEN=$(curl -s -X POST "${GUAC_URL}/api/tokens" \
+TOKEN=$(curl -ks -X POST "${GUAC_URL}/api/tokens" \
   -d "username=$ADMIN_USER&password=${ADMIN_PASS}" | jq -r '.authToken')
 
 if [ "${TOKEN}" == "null" ] || [ -z "${TOKEN}" ]; then
@@ -25,7 +25,7 @@ if [ "${TOKEN}" == "null" ] || [ -z "${TOKEN}" ]; then
 fi
 
 echo "2. create Guacamole user (${GUAC_USER})..."
-curl -s -X POST "$GUAC_URL/api/session/data/postgresql/users?token=${TOKEN}" \
+curl -ks -X POST "${GUAC_URL}/api/session/data/postgresql/users?token=${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "username": "'"${GUAC_USER}"'",
@@ -34,7 +34,7 @@ curl -s -X POST "$GUAC_URL/api/session/data/postgresql/users?token=${TOKEN}" \
   }' > /dev/null
 
 echo "3. create SSH connection (${VM_NAME})..."
-CONN_RESPONSE=$(curl -s -X POST "${GUAC_URL}/api/session/data/postgresql/connections?token=${TOKEN}" \
+CONN_RESPONSE=$(curl -ks -X POST "${GUAC_URL}/api/session/data/postgresql/connections?token=${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "parentIdentifier": "ROOT",
@@ -49,7 +49,7 @@ CONN_RESPONSE=$(curl -s -X POST "${GUAC_URL}/api/session/data/postgresql/connect
     "attributes": {}
   }')
 echo "CONN_RESPONSE=${CONN_RESPONSE}"
-# Die ID der neu erstellten Verbindung auslesen
+# Get the ID of the created connection
 CONN_ID=$(echo "${CONN_RESPONSE}" | jq -r '.identifier')
 
 if [ "$CONN_ID" == "null" ]; then
@@ -59,7 +59,7 @@ fi
 echo "-> Connection created with ID: ${CONN_ID}"
 
 echo "4. Grant rights (user may use connection)..."
-curl -X PATCH "${GUAC_URL}/api/session/data/postgresql/users/${GUAC_USER}/permissions?token=${TOKEN}" \
+curl -k -X PATCH "${GUAC_URL}/api/session/data/postgresql/users/${GUAC_USER}/permissions?token=${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '[
     {

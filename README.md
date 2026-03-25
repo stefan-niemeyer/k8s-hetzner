@@ -19,6 +19,7 @@ settings:
   guac_admin: "myguacadmin"
   guac_passwd: "My-1-Guac-Admin-Secret!"
   cloudflare_api_token: "myCloudflareToken"
+  cloudflare_email: "cloudflare@example.com"
 # No server sharing
 vm: []
 # vm:

@@ -39,15 +39,20 @@ chown -R "${USER}:${USER}" "/${HOME}/.kube"
 kubectl create namespace traefik
 helm upgrade --install --namespace traefik traefik traefik/traefik -f traefik-values.yaml
 
+echo "Install Wildcard Certificate and API Gateway"
+kubectl create namespace nerdapp-work --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f nerdapp-work-tls.yaml
+kubectl apply -f nerdapp-work-gateway.yaml
+
 echo "Install Longhorn"
-apt update
-apt install nfs-common open-iscsi -y
+apt-get update -qq
+apt-get install -y -qq nfs-common open-iscsi
 systemctl enable --now iscsid
 
 helm repo add longhorn https://charts.longhorn.io
 helm repo update
-helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --version 1.10.1
+helm upgrade --install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --version 1.11.1
 
 echo "Install K9s"
-wget -q -O - https://github.com/derailed/k9s/releases/download/v0.50.16/k9s_Linux_amd64.tar.gz | tar xz -C /usr/local/bin k9s
+wget -q -O - https://github.com/derailed/k9s/releases/download/v0.50.18/k9s_Linux_amd64.tar.gz | tar xz -C /usr/local/bin k9s
 chown root:root /usr/local/bin/k9s
