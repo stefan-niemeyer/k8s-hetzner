@@ -33,6 +33,7 @@ services:
     restart: always
     environment:
       GUACD_HOSTNAME: guacd
+      BAN_ENABLED: "false"
       POSTGRESQL_HOSTNAME: postgres
       POSTGRESQL_DATABASE: guacamole_db
       POSTGRESQL_USERNAME: guacamole_user
